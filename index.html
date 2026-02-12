@@ -1,5 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SMP Server</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#000);
+background-size:400% 400%;
+animation:bg 12s ease infinite;
+color:white;
+}
+
+@keyframes bg{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+.card{
+text-align:center;
+padding:60px;
+border-radius:25px;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(15px);
+box-shadow:0 0 60px rgba(0,255,200,0.3);
+width:90%;
+max-width:500px;
+}
+
+h1{
+font-size:40px;
+margin-bottom:15px;
+}
+
+.status{
+margin:25px 0;
+font-size:20px;
+}
+
+.dot{
+display:inline-block;
+width:14px;
+height:14px;
+border-radius:50%;
+margin-right:10px;
+}
+
+.online{background:#00ff88;box-shadow:0 0 10px #00ff88;}
+.offline{background:red;box-shadow:0 0 10px red;}
+
+button{
+padding:20px 60px;
+font-size:24px;
+border:none;
+border-radius:50px;
+background:linear-gradient(45deg,#00ffcc,#00ff88);
+color:black;
+font-weight:bold;
+cursor:pointer;
+transition:0.25s;
+box-shadow:0 0 25px #00ffcc;
+}
+
+button:hover{
+transform:scale(1.08);
+box-shadow:0 0 60px #00ffcc;
+}
+
+.small{
+margin-top:20px;
+font-size:14px;
+color:#aaa;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+<h1>🚀 SMP Server</h1>
+
+<div id="status" class="status">
+<span class="dot offline"></span>Checking server...
+</div>
+
+<button onclick="startServer()">START SERVER</button>
+
+<div class="small">If offline, press start and wait 1-2 min</div>
+</div>
+
 <script>
-const serverIP = "xcool.falix.me"; // put your IP here
+const serverIP = "xcool.falix.me";
 
 async function checkStatus(){
 try{
@@ -7,7 +105,9 @@ let res = await fetch(`https://api.mcsrvstat.us/2/${serverIP}`);
 let data = await res.json();
 let statusDiv = document.getElementById("status");
 
-// TRUE ONLINE = has players + version + motd
+if(!statusDiv) return;
+
+// Real online check
 if(data.online && data.version && data.motd){
 statusDiv.innerHTML =
 '<span class="dot online"></span>Server Online ('+(data.players?.online || 0)+' players)';
@@ -28,10 +128,12 @@ document.getElementById("status").innerHTML =
 }
 
 function startServer(){
-window.location.href =
-`https://falixnodes.net/startserver?ip=${serverIP}`;
+window.open(`https://falixnodes.net/startserver?ip=${serverIP}`, "_blank");
 }
 
 checkStatus();
 setInterval(checkStatus,10000);
 </script>
+
+</body>
+</html>
