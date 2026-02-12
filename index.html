@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SMP Server</title>
+<title>Start SMP</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -26,39 +26,30 @@ color:white;
 
 .card{
 text-align:center;
-padding:60px;
+padding:40px 25px;
 border-radius:25px;
-background:rgba(0,0,0,0.6);
-backdrop-filter:blur(15px);
-box-shadow:0 0 60px rgba(0,255,200,0.3);
-width:90%;
-max-width:500px;
+background:rgba(0,0,0,0.65);
+backdrop-filter:blur(14px);
+box-shadow:0 0 60px rgba(0,255,200,0.25);
+width:92%;
+max-width:420px;
 }
 
 h1{
-font-size:40px;
-margin-bottom:15px;
+font-size:32px;
+margin-bottom:10px;
 }
 
-.status{
-margin:25px 0;
-font-size:20px;
+p{
+color:#ccc;
+margin-bottom:35px;
+font-size:16px;
 }
-
-.dot{
-display:inline-block;
-width:14px;
-height:14px;
-border-radius:50%;
-margin-right:10px;
-}
-
-.online{background:#00ff88;box-shadow:0 0 10px #00ff88;}
-.offline{background:red;box-shadow:0 0 10px red;}
 
 button{
-padding:20px 60px;
-font-size:24px;
+width:100%;
+padding:22px 0;
+font-size:22px;
 border:none;
 border-radius:50px;
 background:linear-gradient(45deg,#00ffcc,#00ff88);
@@ -70,14 +61,19 @@ box-shadow:0 0 25px #00ffcc;
 }
 
 button:hover{
-transform:scale(1.08);
+transform:scale(1.05);
 box-shadow:0 0 60px #00ffcc;
 }
 
-.small{
-margin-top:20px;
-font-size:14px;
+.note{
+margin-top:18px;
+font-size:13px;
 color:#aaa;
+}
+
+@media(max-width:500px){
+h1{font-size:26px}
+button{font-size:20px;padding:20px 0}
 }
 </style>
 </head>
@@ -85,54 +81,18 @@ color:#aaa;
 <body>
 
 <div class="card">
-<h1>🚀 SMP Server</h1>
-
-<div id="status" class="status">
-<span class="dot offline"></span>Checking server...
-</div>
+<h1>🚀 Start SMP</h1>
+<p>If server is offline, press start below</p>
 
 <button onclick="startServer()">START SERVER</button>
 
-<div class="small">If offline, press start and wait 1-2 min</div>
+<div class="note">Wait 1–2 minutes then join Minecraft</div>
 </div>
 
 <script>
-const serverIP = "xcool.falix.me";
-
-async function checkStatus(){
-try{
-let res = await fetch(`https://api.mcsrvstat.us/2/${serverIP}`);
-let data = await res.json();
-let statusDiv = document.getElementById("status");
-
-if(!statusDiv) return;
-
-// Real online check
-if(data.online && data.version && data.motd){
-statusDiv.innerHTML =
-'<span class="dot online"></span>Server Online ('+(data.players?.online || 0)+' players)';
-}
-else if(data.online && !data.version){
-statusDiv.innerHTML =
-'<span class="dot offline"></span>Server Starting...';
-}
-else{
-statusDiv.innerHTML =
-'<span class="dot offline"></span>Server Offline';
-}
-
-}catch{
-document.getElementById("status").innerHTML =
-'<span class="dot offline"></span>Status error';
-}
-}
-
 function startServer(){
-window.open(`https://falixnodes.net/startserver?ip=${serverIP}`, "_blank");
+window.location.href="https://falixnodes.net/startserver?ip=xcool.falix.me";
 }
-
-checkStatus();
-setInterval(checkStatus,10000);
 </script>
 
 </body>
