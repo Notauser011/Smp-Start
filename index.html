@@ -44,11 +44,12 @@
             font-weight:bold;
             margin-bottom:25px;
             letter-spacing:1px;
-            transition: 0.3s;
+            text-transform: uppercase;
         }
 
         .online { background:rgba(0,255,136,0.15); color:#00ff88; border:1px solid #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.2); }
         .offline { background:rgba(255,75,43,0.15); color:#ff4b2b; border:1px solid #ff4b2b; }
+        .checking { background:rgba(255,255,255,0.1); color:#fff; border:1px solid #fff; }
 
         h1 { font-size:26px; margin-bottom:20px; letter-spacing: -1px; }
 
@@ -114,37 +115,28 @@
 <body>
 
 <div class="card">
-    <div id="statusBadge" class="status-badge">PINGING SERVER...</div>
+    <div id="statusBadge" class="status-badge checking">CONNECTING...</div>
     
     <h1>🚀 START SMP</h1>
 
     <div class="section-title">Java Edition</div>
     <div class="copy-box">
-        <div class="copy-info">
-            <span class="copy-label">Server Address</span>
-            <span class="copy-val">xcool.falix.me</span>
-        </div>
+        <div class="copy-info"><span class="copy-label">Address</span><span class="copy-val">xcool.falix.me</span></div>
         <button class="mini-btn" onclick="copy('xcool.falix.me', this)">COPY</button>
     </div>
 
-    <div class="section-title">Bedrock / Pocket Edition</div>
+    <div class="section-title">Bedrock / Pocket</div>
     <div class="copy-box">
-        <div class="copy-info">
-            <span class="copy-label">Address</span>
-            <span class="copy-val">168.119.78.155</span>
-        </div>
+        <div class="copy-info"><span class="copy-label">IP Address</span><span class="copy-val">168.119.78.155</span></div>
         <button class="mini-btn" onclick="copy('168.119.78.155', this)">COPY IP</button>
     </div>
     <div class="copy-box">
-        <div class="copy-info">
-            <span class="copy-label">Port</span>
-            <span class="copy-val">20001</span>
-        </div>
+        <div class="copy-info"><span class="copy-label">Port</span><span class="copy-val">20001</span></div>
         <button class="mini-btn" onclick="copy('20001', this)">COPY PORT</button>
     </div>
 
     <button class="start-btn" onclick="startServer()">START SERVER</button>
-    <p class="note">Wait 1–2 minutes after starting to join.</p>
+    <p class="note">Status refreshes every 30 seconds.</p>
 </div>
 
 <script>
@@ -156,27 +148,30 @@
 
     function copy(text, btn) {
         navigator.clipboard.writeText(text);
-        const originalText = btn.innerText;
+        const oldText = btn.innerText;
         btn.innerText = "COPIED!";
-        btn.style.background = "#00ffcc";
-        btn.style.color = "#000";
-        
-        setTimeout(() => { 
-            btn.innerText = originalText; 
-            btn.style.background = "#222";
-            btn.style.color = "#00ffcc";
-        }, 1500);
+        setTimeout(() => { btn.innerText = oldText; }, 1500);
     }
 
     async function checkStatus() {
         const badge = document.getElementById('statusBadge');
         try {
+            // We use the '2' endpoint for detailed JSON
             const res = await fetch(`https://api.mcsrvstat.us/2/${JAVA_IP}`);
             const data = await res.json();
 
-            // Verification: Logic to filter out 'Fake Online' host proxies
-            // If the server has no players and no debug info, it's usually offline/hibernating
-            if (data.online === true && data.players) {
+            /* ALGORITHM TO DETECT FALIX HIBERNATION/PROXY:
+               1. data.online must be true.
+               2. If players.online is 0, we check the MOTD or Debug info.
+               3. If the MOTD contains host-specific 'offline' text, we mark it offline.
+            */
+            
+            const isOnline = data.online === true;
+            const hasPlayers = data.players && data.players.max > 0;
+            const motdText = (data.motd && data.motd.clean) ? data.motd.clean.join(' ').toLowerCase() : "";
+            
+            // Falix/Parking proxies often return 0 max players or a specific "starting" MOTD
+            if (isOnline && hasPlayers && !motdText.includes("offline") && !motdText.includes("starting")) {
                 badge.innerText = `● ONLINE | ${data.players.online} PLAYERS`;
                 badge.className = "status-badge online";
             } else {
@@ -184,14 +179,13 @@
                 badge.className = "status-badge offline";
             }
         } catch (err) {
-            badge.innerText = "● STATUS UNKNOWN";
+            badge.innerText = "● OFFLINE";
             badge.className = "status-badge offline";
         }
     }
 
-    // Run status check every 30 seconds
     checkStatus();
-    setInterval(checkStatus, 30000);
+    setInterval(checkStatus, 30000); // Auto-refresh
 </script>
 
 </body>
