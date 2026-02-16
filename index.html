@@ -57,6 +57,7 @@
 
         .online { background: #00ff881a; color: var(--online); border: 1px solid var(--online); box-shadow: 0 0 15px #00ff8833; }
         .offline { background: #ff4b2b1a; color: var(--offline); border: 1px solid var(--offline); }
+        .checking { background: #ffcc001a; color: #ffcc00; border: 1px solid #ffcc00; }
 
         h1 { font-size: clamp(24px, 8vw, 30px); margin-bottom: 20px; font-weight: 900; }
 
@@ -134,7 +135,7 @@
 </div>
 
 <div class="card">
-    <div id="statusBadge" class="status-badge offline">CONNECTING...</div>
+    <div id="statusBadge" class="status-badge checking">CHECKING...</div>
     
     <h1>🚀 SMP HUB</h1>
 
@@ -197,26 +198,66 @@
         }, 400);
     }
 
-    async function checkStatus() {
+    async function checkStatus(retryCount = 0) {
         const badge = document.getElementById('statusBadge');
+        
+        // Show checking status on first attempt
+        if (retryCount === 0) {
+            badge.innerText = "● CHECKING...";
+            badge.className = "status-badge checking";
+        }
+        
         try {
-            const res = await fetch(`https://api.mcsrvstat.us/2/xcool.falix.me`);
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            
+            const res = await fetch(`https://api.mcsrvstat.us/2/xcool.falix.me`, {
+                signal: controller.signal,
+                cache: 'no-cache' // Force fresh data
+            });
+            clearTimeout(timeout);
+            
             const data = await res.json();
-            if (data.online === true && data.players && data.players.max > 0) {
-                badge.innerText = `● ONLINE: ${data.players.online}/${data.players.max}`;
+            
+            // Log for debugging (remove in production if needed)
+            console.log('Server status:', data);
+            
+            if (data.online === true) {
+                const online = data.players?.online ?? 0;
+                const max = data.players?.max ?? 0;
+                badge.innerText = `● ONLINE: ${online}/${max}`;
                 badge.className = "status-badge online";
             } else {
-                badge.innerText = "● SERVER OFFLINE";
-                badge.className = "status-badge offline";
+                // Retry up to 3 times if offline (with 2 second delays)
+                if (retryCount < 3) {
+                    badge.innerText = `● CHECKING... (${retryCount + 1}/3)`;
+                    badge.className = "status-badge checking";
+                    setTimeout(() => checkStatus(retryCount + 1), 2000);
+                } else {
+                    badge.innerText = "● SERVER OFFLINE";
+                    badge.className = "status-badge offline";
+                }
             }
         } catch (err) {
-            badge.innerText = "● OFFLINE";
-            badge.className = "status-badge offline";
+            console.error('Status check error:', err);
+            
+            // Retry on error
+            if (retryCount < 3) {
+                badge.innerText = `● CHECKING... (${retryCount + 1}/3)`;
+                badge.className = "status-badge checking";
+                setTimeout(() => checkStatus(retryCount + 1), 2000);
+            } else {
+                badge.innerText = "● STATUS UNKNOWN";
+                badge.className = "status-badge offline";
+            }
         }
     }
 
-    checkStatus();
-    setInterval(checkStatus, 30000);
+    // Initial check with slight delay
+    setTimeout(() => checkStatus(), 500);
+    
+    // Regular checks every 30 seconds
+    setInterval(() => checkStatus(), 30000);
 </script>
 
 </body>
