@@ -2,16 +2,16 @@
 <html>
 <head>
     <title>Start SMP</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         :root {
             --neon: #00ffcc;
-            --bg-dark: #050505;
+            --online: #00ff88;
+            --offline: #ff4b2b;
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Outfit', 'Segoe UI', sans-serif; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        /* Animated Gradient Background */
         body {
             height: 100vh;
             display: flex;
@@ -22,7 +22,7 @@
             animation: gradientBG 15s ease infinite;
             color: white;
             overflow: hidden;
-            padding: 20px;
+            padding: 15px;
         }
 
         @keyframes gradientBG {
@@ -33,79 +33,71 @@
 
         .card {
             text-align: center;
-            padding: 45px 35px;
-            border-radius: 50px; /* Super Round */
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            padding: 30px 20px;
+            border-radius: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
             width: 100%;
-            max-width: 420px;
-            position: relative;
+            max-width: 380px;
         }
 
         .status-badge {
             display: inline-block;
-            padding: 10px 25px;
+            padding: 8px 20px;
             border-radius: 100px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 800;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             letter-spacing: 2px;
             text-transform: uppercase;
-            transition: 0.5s;
         }
 
-        .online { background: #00ff881a; color: #00ff88; border: 1px solid #00ff88; box-shadow: 0 0 20px #00ff8833; }
-        .offline { background: #ff4b2b1a; color: #ff4b2b; border: 1px solid #ff4b2b; }
+        .online { background: #00ff881a; color: var(--online); border: 1px solid var(--online); box-shadow: 0 0 15px #00ff8833; }
+        .offline { background: #ff4b2b1a; color: var(--offline); border: 1px solid var(--offline); }
 
-        h1 { font-size: 34px; margin-bottom: 30px; font-weight: 900; letter-spacing: -1.5px; }
+        h1 { font-size: clamp(24px, 8vw, 30px); margin-bottom: 20px; font-weight: 900; }
 
         .section-title {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--neon);
             text-align: left;
-            margin: 0 0 10px 20px;
+            margin: 12px 0 6px 15px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1.2px;
             font-weight: 700;
         }
 
         .copy-box {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 100px;
-            padding: 12px 12px 12px 25px;
-            margin-bottom: 12px;
+            padding: 8px 8px 8px 20px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border: 1px solid rgba(255, 255, 255, 0.03);
-            transition: 0.3s;
         }
 
-        .copy-box:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--neon); }
-
-        .copy-val { font-size: 14px; font-family: 'Monaco', monospace; font-weight: 600; color: #eee; }
+        .copy-val { font-size: 13px; font-family: monospace; font-weight: 600; color: #fff; }
 
         .mini-btn {
             background: linear-gradient(45deg, #00ffcc, #00ff88);
             color: #000;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 18px; /* Larger touch target for mobile */
             border-radius: 100px;
             font-size: 10px;
             cursor: pointer;
             font-weight: 900;
-            transition: 0.2s ease;
         }
-
-        .mini-btn:hover { transform: scale(1.08); filter: brightness(1.2); }
 
         .start-btn {
             width: 100%;
-            padding: 24px;
-            font-size: 22px;
+            padding: 20px;
+            font-size: 20px;
             border: none;
             border-radius: 100px;
             background: linear-gradient(90deg, #00ffcc, #00ff88, #00ffcc);
@@ -113,32 +105,40 @@
             color: #000;
             font-weight: 950;
             cursor: pointer;
-            margin-top: 25px;
-            box-shadow: 0 15px 35px rgba(0, 255, 204, 0.3);
-            transition: 0.4s;
+            margin-top: 20px;
+            box-shadow: 0 10px 25px rgba(0, 255, 204, 0.3);
             animation: shine 3s linear infinite;
         }
 
-        @keyframes shine {
-            to { background-position: 200% center; }
-        }
+        @keyframes shine { to { background-position: 200% center; } }
 
-        .start-btn:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 20px 50px rgba(0, 255, 204, 0.5); 
+        /* Mobile Audio Prompt Overlay */
+        #audioPrompt {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
         }
-
-        .note { margin-top: 25px; font-size: 11px; color: rgba(255, 255, 255, 0.3); letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
 
+<div id="audioPrompt" onclick="initAudio()">
+    <p>Tap to Enter Hub</p>
+    <span style="font-size: 12px; color: var(--neon); margin-top: 10px;">(Enables Game Sounds)</span>
+</div>
+
 <div class="card">
-    <div id="statusBadge" class="status-badge offline">SYNCING...</div>
+    <div id="statusBadge" class="status-badge offline">CONNECTING...</div>
     
     <h1>🚀 SMP HUB</h1>
 
-    <div class="section-title">Java Edition</div>
+    <div class="section-title">Java Connection</div>
     <div class="copy-box">
         <span class="copy-val">xcool.falix.me</span>
         <button class="mini-btn" onclick="copyIP('xcool.falix.me', this)">COPY</button>
@@ -155,20 +155,19 @@
     </div>
 
     <button class="start-btn" onclick="handleStart()">START SERVER</button>
-    <p class="note">Status updates live every 30s</p>
 </div>
 
 <script>
-    // --- WEBAUDIO SOUND ENGINE ---
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
 
     function initAudio() {
-        if (!audioCtx) audioCtx = new AudioContext();
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        document.getElementById('audioPrompt').style.display = 'none';
+        playSound(600, 0.2, 'sine', 0.3); // Entry sound
     }
 
-    function playSound(freq, duration, type) {
-        initAudio();
+    function playSound(freq, duration, type, volume) {
+        if (!audioCtx) return;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = type;
@@ -176,28 +175,26 @@
         gain.connect(audioCtx.destination);
         
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
         
         osc.start();
         osc.stop(audioCtx.currentTime + duration);
     }
 
-    // --- LOGIC ---
     function copyIP(text, btn) {
-        playSound(800, 0.1, 'sine');
+        playSound(900, 0.1, 'sine', 0.5); // LOUDER COPY SOUND
         navigator.clipboard.writeText(text);
-        const oldText = btn.innerText;
         btn.innerText = "DONE!";
-        setTimeout(() => { btn.innerText = oldText; }, 1000);
+        setTimeout(() => { btn.innerText = btn.innerText.includes("PORT") ? "PORT" : btn.innerText.includes("IP") ? "IP" : "COPY"; }, 1000);
     }
 
     function handleStart() {
-        playSound(500, 0.3, 'triangle');
-        setTimeout(() => playSound(1000, 0.3, 'triangle'), 100);
+        playSound(400, 0.4, 'square', 0.4); // POWERFUL START SOUND
+        setTimeout(() => playSound(800, 0.4, 'square', 0.4), 100);
         setTimeout(() => {
             window.location.href = "https://falixnodes.net/startserver?ip=xcool.falix.me";
-        }, 300);
+        }, 400);
     }
 
     async function checkStatus() {
@@ -205,8 +202,6 @@
         try {
             const res = await fetch(`https://api.mcsrvstat.us/2/xcool.falix.me`);
             const data = await res.json();
-            
-            // Accurate online check for FalixNodes
             if (data.online === true && data.players && data.players.max > 0) {
                 badge.innerText = `● ONLINE: ${data.players.online}/${data.players.max}`;
                 badge.className = "status-badge online";
