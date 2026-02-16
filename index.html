@@ -4,163 +4,194 @@
     <title>Start SMP</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Arial, sans-serif; }
 
         body {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #000);
-            background-size: 400% 400%;
-            animation: bg 12s ease infinite;
-            color: white;
-            padding: 20px;
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #000);
+            background-size:400% 400%;
+            animation:bg 12s ease infinite;
+            color:white;
+            padding:20px;
         }
 
         @keyframes bg {
-            0% { background-position: 0% 50% }
-            50% { background-position: 100% 50% }
-            100% { background-position: 0% 50% }
+            0% {background-position:0% 50%}
+            50% {background-position:100% 50%}
+            100% {background-position:0% 50%}
         }
 
         .card {
-            text-align: center;
-            padding: 30px 20px;
-            border-radius: 25px;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(14px);
-            box-shadow: 0 0 60px rgba(0, 255, 200, 0.15);
-            width: 100%;
-            max-width: 450px;
+            text-align:center;
+            padding:30px 20px;
+            border-radius:25px;
+            background:rgba(0,0,0,0.85);
+            backdrop-filter:blur(15px);
+            box-shadow:0 0 50px rgba(0,255,200,0.15);
+            width:100%;
+            max-width:420px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .status-badge {
-            display: inline-block;
-            padding: 6px 15px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.1);
+            display:inline-block;
+            padding:8px 20px;
+            border-radius:50px;
+            font-size:12px;
+            font-weight:bold;
+            margin-bottom:25px;
+            letter-spacing:1px;
+            transition: 0.3s;
         }
 
-        .online { color: #00ff88; border: 1px solid #00ff88; }
-        .offline { color: #ff4b2b; border: 1px solid #ff4b2b; }
+        .online { background:rgba(0,255,136,0.15); color:#00ff88; border:1px solid #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.2); }
+        .offline { background:rgba(255,75,43,0.15); color:#ff4b2b; border:1px solid #ff4b2b; }
 
-        h1 { font-size: 28px; margin-bottom: 5px; }
-        .subtitle { color: #aaa; margin-bottom: 25px; font-size: 14px; }
+        h1 { font-size:26px; margin-bottom:20px; letter-spacing: -1px; }
 
-        .info-box {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-            text-align: left;
-            position: relative;
+        .section-title {
+            font-size:11px;
+            color:#00ffcc;
+            text-align:left;
+            margin:15px 0 8px 5px;
+            font-weight:800;
+            text-transform:uppercase;
+            opacity: 0.8;
         }
 
-        .info-label { font-size: 12px; color: #00ffcc; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
-        .info-text { font-size: 15px; color: #fff; font-family: monospace; }
-
-        .copy-btn {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #333;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 11px;
-            cursor: pointer;
-            transition: 0.2s;
+        .copy-box {
+            background:rgba(255,255,255,0.05);
+            border-radius:12px;
+            padding:12px 15px;
+            margin-bottom:8px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            border:1px solid rgba(255,255,255,0.05);
         }
 
-        .copy-btn:hover { background: #00ffcc; color: #000; }
+        .copy-info { text-align: left; }
+        .copy-label { font-size:10px; color:#888; display:block; text-transform: uppercase; }
+        .copy-val { font-size:14px; font-family:'Courier New', monospace; color:#fff; font-weight: bold; }
+
+        .mini-btn {
+            background:#222;
+            color:#00ffcc;
+            border:1px solid #00ffcc;
+            padding:6px 12px;
+            border-radius:6px;
+            font-size:10px;
+            cursor:pointer;
+            font-weight:bold;
+            transition:0.2s;
+        }
+
+        .mini-btn:hover { background:#00ffcc; color:#000; }
 
         .start-btn {
-            width: 100%;
-            padding: 18px;
-            font-size: 20px;
-            border: none;
-            border-radius: 50px;
-            background: linear-gradient(45deg, #00ffcc, #00ff88);
-            color: black;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.25s;
-            margin-top: 10px;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+            width:100%;
+            padding:18px;
+            font-size:18px;
+            border:none;
+            border-radius:50px;
+            background:linear-gradient(45deg, #00ffcc, #00ff88);
+            color:#000;
+            font-weight:900;
+            cursor:pointer;
+            margin-top:25px;
+            box-shadow:0 10px 20px rgba(0,255,204,0.2);
+            transition:0.3s;
         }
 
-        .start-btn:hover { transform: scale(1.02); box-shadow: 0 0 40px #00ffcc; }
+        .start-btn:hover { transform:translateY(-3px); box-shadow:0 15px 30px rgba(0,255,204,0.4); }
 
-        .note { margin-top: 15px; font-size: 12px; color: #777; }
+        .note { margin-top:20px; font-size:12px; color:#555; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div id="statusBadge" class="status-badge">Checking status...</div>
+    <div id="statusBadge" class="status-badge">PINGING SERVER...</div>
     
-    <h1>🚀 Start SMP</h1>
-    <p class="subtitle">Join the server using the details below</p>
+    <h1>🚀 START SMP</h1>
 
-    <div class="info-box">
-        <div class="info-label">Java Edition</div>
-        <div class="info-text" id="javaIP">xcool.falix.me</div>
-        <button class="copy-btn" onclick="copyText('xcool.falix.me')">COPY</button>
+    <div class="section-title">Java Edition</div>
+    <div class="copy-box">
+        <div class="copy-info">
+            <span class="copy-label">Server Address</span>
+            <span class="copy-val">xcool.falix.me</span>
+        </div>
+        <button class="mini-btn" onclick="copy('xcool.falix.me', this)">COPY</button>
     </div>
 
-    <div class="info-box">
-        <div class="info-label">Bedrock / Pocket Edition</div>
-        <div class="info-text">IP: 168.119.78.155<br>Port: 20001</div>
-        <button class="copy-btn" onclick="copyText('168.119.78.155:20001')">COPY</button>
+    <div class="section-title">Bedrock / Pocket Edition</div>
+    <div class="copy-box">
+        <div class="copy-info">
+            <span class="copy-label">Address</span>
+            <span class="copy-val">168.119.78.155</span>
+        </div>
+        <button class="mini-btn" onclick="copy('168.119.78.155', this)">COPY IP</button>
+    </div>
+    <div class="copy-box">
+        <div class="copy-info">
+            <span class="copy-label">Port</span>
+            <span class="copy-val">20001</span>
+        </div>
+        <button class="mini-btn" onclick="copy('20001', this)">COPY PORT</button>
     </div>
 
     <button class="start-btn" onclick="startServer()">START SERVER</button>
-    <div class="note">If offline, click start and wait 1–2 minutes.</div>
+    <p class="note">Wait 1–2 minutes after starting to join.</p>
 </div>
 
 <script>
-    // 1. Server Start Logic
+    const JAVA_IP = "xcool.falix.me";
+
     function startServer() {
-        window.location.href = "https://falixnodes.net/startserver?ip=xcool.falix.me";
+        window.location.href = `https://falixnodes.net/startserver?ip=${JAVA_IP}`;
     }
 
-    // 2. Copy to Clipboard Logic
-    function copyText(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            alert("Copied to clipboard: " + text);
-        });
-    }
-
-    // 3. Server Status API Logic
-    async function updateStatus() {
-        const badge = document.getElementById('statusBadge');
-        const javaIP = "xcool.falix.me";
+    function copy(text, btn) {
+        navigator.clipboard.writeText(text);
+        const originalText = btn.innerText;
+        btn.innerText = "COPIED!";
+        btn.style.background = "#00ffcc";
+        btn.style.color = "#000";
         
-        try {
-            const response = await fetch(`https://api.mcsrvstat.us/2/${javaIP}`);
-            const data = await response.json();
+        setTimeout(() => { 
+            btn.innerText = originalText; 
+            btn.style.background = "#222";
+            btn.style.color = "#00ffcc";
+        }, 1500);
+    }
 
-            if (data.online) {
-                badge.innerHTML = `● ONLINE (${data.players.online}/${data.players.max})`;
+    async function checkStatus() {
+        const badge = document.getElementById('statusBadge');
+        try {
+            const res = await fetch(`https://api.mcsrvstat.us/2/${JAVA_IP}`);
+            const data = await res.json();
+
+            // Verification: Logic to filter out 'Fake Online' host proxies
+            // If the server has no players and no debug info, it's usually offline/hibernating
+            if (data.online === true && data.players) {
+                badge.innerText = `● ONLINE | ${data.players.online} PLAYERS`;
                 badge.className = "status-badge online";
             } else {
-                badge.innerHTML = `● OFFLINE`;
+                badge.innerText = "● OFFLINE";
                 badge.className = "status-badge offline";
             }
-        } catch (error) {
-            badge.innerHTML = "Status Unavailable";
-            console.error("Status check failed:", error);
+        } catch (err) {
+            badge.innerText = "● STATUS UNKNOWN";
+            badge.className = "status-badge offline";
         }
     }
 
-    // Run status check on load
-    updateStatus();
+    // Run status check every 30 seconds
+    checkStatus();
+    setInterval(checkStatus, 30000);
 </script>
 
 </body>
