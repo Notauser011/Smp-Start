@@ -198,6 +198,43 @@
         }, 400);
     }
 
+    function isServerActuallyOnline(data) {
+        // Check if API says it's offline
+        if (data.online !== true) {
+            return false;
+        }
+
+        // Check for FalixNodes offline MOTD
+        if (data.motd && data.motd.clean) {
+            const motdText = Array.isArray(data.motd.clean) 
+                ? data.motd.clean.join(' ') 
+                : data.motd.clean;
+            
+            if (motdText.includes('This server is OFFLINE!') || 
+                motdText.includes('Start the server at FalixNodes.net/start')) {
+                return false;
+            }
+        }
+
+        // Check for "⬤ OFFLINE" in version
+        if (data.version && typeof data.version === 'string') {
+            if (data.version.includes('OFFLINE') || data.version.includes('⬤ OFFLINE')) {
+                return false;
+            }
+        }
+
+        // Check for 0/0 players (both max and online are 0)
+        if (data.players) {
+            if ((data.players.max === 0 && data.players.online === 0) || 
+                (data.players.max === 0)) {
+                return false;
+            }
+        }
+
+        // If all checks pass, server is actually online
+        return true;
+    }
+
     async function checkStatus(retryCount = 0) {
         const badge = document.getElementById('statusBadge');
         
@@ -222,15 +259,16 @@
             // Log for debugging (remove in production if needed)
             console.log('Server status:', data);
             
-            if (data.online === true) {
+            // Use custom function to check if server is actually online
+            if (isServerActuallyOnline(data)) {
                 const online = data.players?.online ?? 0;
                 const max = data.players?.max ?? 0;
                 badge.innerText = `● ONLINE: ${online}/${max}`;
                 badge.className = "status-badge online";
             } else {
-                // Retry up to 3 times if offline (with 2 second delays)
-                if (retryCount < 3) {
-                    badge.innerText = `● CHECKING... (${retryCount + 1}/3)`;
+                // Retry up to 2 times if offline (with 2 second delays)
+                if (retryCount < 2) {
+                    badge.innerText = `● CHECKING... (${retryCount + 1}/2)`;
                     badge.className = "status-badge checking";
                     setTimeout(() => checkStatus(retryCount + 1), 2000);
                 } else {
@@ -242,8 +280,8 @@
             console.error('Status check error:', err);
             
             // Retry on error
-            if (retryCount < 3) {
-                badge.innerText = `● CHECKING... (${retryCount + 1}/3)`;
+            if (retryCount < 2) {
+                badge.innerText = `● CHECKING... (${retryCount + 1}/2)`;
                 badge.className = "status-badge checking";
                 setTimeout(() => checkStatus(retryCount + 1), 2000);
             } else {
