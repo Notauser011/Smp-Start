@@ -1,28 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Start SMP</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🚀 SMP HUB | Server Status</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
             --neon: #00ffcc;
             --online: #00ff88;
             --offline: #ff4b2b;
+            --checking: #ffcc00;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body {
-            height: 100vh;
+            height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(-45deg, #0f2027, #2c5364, #203a43, #000);
+            background: linear-gradient(-45deg, #0f2027, #2c5364, #203a43, #050505);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             color: white;
             overflow: hidden;
-            padding: 15px;
+            padding: 20px;
         }
 
         @keyframes gradientBG {
@@ -31,128 +42,197 @@
             100% { background-position: 0% 50%; }
         }
 
-        .card {
-            text-align: center;
-            padding: 30px 20px;
-            border-radius: 40px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 380px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 8px 20px;
-            border-radius: 100px;
-            font-size: 10px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .online { background: #00ff881a; color: var(--online); border: 1px solid var(--online); box-shadow: 0 0 15px #00ff8833; }
-        .offline { background: #ff4b2b1a; color: var(--offline); border: 1px solid var(--offline); }
-        .checking { background: #ffcc001a; color: #ffcc00; border: 1px solid #ffcc00; }
-
-        h1 { font-size: clamp(24px, 8vw, 30px); margin-bottom: 20px; font-weight: 900; }
-
-        .section-title {
-            font-size: 9px;
-            color: var(--neon);
-            text-align: left;
-            margin: 12px 0 6px 15px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            font-weight: 700;
-        }
-
-        .copy-box {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 100px;
-            padding: 8px 8px 8px 20px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .copy-val { font-size: 13px; font-family: monospace; font-weight: 600; color: #fff; }
-
-        .mini-btn {
-            background: linear-gradient(45deg, #00ffcc, #00ff88);
-            color: #000;
-            border: none;
-            padding: 12px 18px; /* Larger touch target for mobile */
-            border-radius: 100px;
-            font-size: 10px;
-            cursor: pointer;
-            font-weight: 900;
-        }
-
-        .start-btn {
-            width: 100%;
-            padding: 20px;
-            font-size: 20px;
-            border: none;
-            border-radius: 100px;
-            background: linear-gradient(90deg, #00ffcc, #00ff88, #00ffcc);
-            background-size: 200% auto;
-            color: #000;
-            font-weight: 950;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 10px 25px rgba(0, 255, 204, 0.3);
-            animation: shine 3s linear infinite;
-        }
-
-        @keyframes shine { to { background-position: 200% center; } }
-
-        /* Mobile Audio Prompt Overlay */
+        /* --- Audio Prompt Overlay --- */
         #audioPrompt {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 100;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+
+        #audioPrompt.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .prompt-ring {
+            width: 80px;
+            height: 80px;
+            border: 3px solid var(--neon);
+            border-radius: 50%;
+            margin-bottom: 20px;
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.7); }
+            70% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 20px rgba(0, 255, 204, 0); }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+
+        /* --- Main Card --- */
+        .card {
+            position: relative;
+            text-align: center;
+            padding: 40px 25px;
+            border-radius: 40px;
+            background: rgba(10, 15, 20, 0.6);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.02);
+            width: 100%;
+            max-width: 400px;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        /* --- Status Badge --- */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .online { background: #00ff8815; color: var(--online); border: 1px solid #00ff8844; box-shadow: 0 0 20px #00ff8822; }
+        .offline { background: #ff4b2b15; color: var(--offline); border: 1px solid #ff4b2b44; }
+        .checking { background: #ffcc0015; color: var(--checking); border: 1px solid #ffcc0044; }
+
+        .pulse-animation { animation: badge-pulse 2s infinite; }
+        @keyframes badge-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        h1 { font-size: clamp(28px, 9vw, 36px); margin-bottom: 25px; font-weight: 900; letter-spacing: -1px; }
+
+        .section-title {
+            font-size: 10px;
+            color: var(--neon);
+            text-align: left;
+            margin: 15px 0 8px 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+
+        /* --- Copy Boxes --- */
+        .copy-box {
+            background: var(--glass);
+            border-radius: 18px;
+            padding: 10px 10px 10px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .copy-box:active { transform: scale(0.98); background: rgba(255,255,255,0.12); }
+
+        .copy-val { font-size: 14px; font-family: 'JetBrains Mono', monospace; font-weight: 500; color: #fff; }
+
+        .mini-btn {
+            background: var(--neon);
+            color: #000;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 800;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.2);
+        }
+
+        .mini-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .mini-btn:active { transform: translateY(1px); }
+
+        /* --- Action Button --- */
+        .start-btn {
+            width: 100%;
+            padding: 22px;
+            font-size: 18px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #00ffcc, #00ff88, #00ffcc);
+            background-size: 200% auto;
+            color: #000;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 25px;
+            box-shadow: 0 15px 35px rgba(0, 255, 204, 0.25);
+            transition: all 0.3s ease;
+            animation: shine 4s linear infinite;
+        }
+
+        .start-btn:hover { transform: translateY(-3px); box-shadow: 0 20px 45px rgba(0, 255, 204, 0.35); }
+        .start-btn:active { transform: translateY(0); }
+
+        @keyframes shine { to { background-position: 200% center; } }
+
+        /* Mobile Adjustments */
+        @media (max-width: 400px) {
+            .card { padding: 30px 15px; }
+            .copy-val { font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
 <div id="audioPrompt" onclick="initAudio()">
-    <p>Tap to Enter Hub</p>
-    <span style="font-size: 12px; color: var(--neon); margin-top: 10px;">(Enables Game Sounds)</span>
+    <div class="prompt-ring"></div>
+    <h2 style="font-weight: 900;">TAP TO ENTER</h2>
+    <p style="font-size: 12px; color: var(--neon); margin-top: 10px; opacity: 0.7;">ENABLING NEON INTERFACE</p>
 </div>
 
 <div class="card">
-    <div id="statusBadge" class="status-badge checking">CHECKING...</div>
+    <div id="statusBadge" class="status-badge checking pulse-animation">
+        <span class="status-dot"></span>
+        <span id="statusText">CHECKING STATUS</span>
+    </div>
     
     <h1>🚀 SMP HUB</h1>
 
     <div class="section-title">Java Connection</div>
     <div class="copy-box">
         <span class="copy-val">xcool.falix.me</span>
-        <button class="mini-btn" onclick="copyIP('xcool.falix.me', this)">COPY</button>
+        <button class="mini-btn" onclick="copyIP('xcool.falix.me', this, 'COPY')">COPY</button>
     </div>
 
     <div class="section-title">Bedrock Edition</div>
     <div class="copy-box">
         <span class="copy-val">168.119.78.155</span>
-        <button class="mini-btn" onclick="copyIP('168.119.78.155', this)">IP</button>
+        <button class="mini-btn" onclick="copyIP('168.119.78.155', this, 'IP')">IP</button>
     </div>
     <div class="copy-box">
         <span class="copy-val">Port: 20001</span>
-        <button class="mini-btn" onclick="copyIP('20001', this)">PORT</button>
+        <button class="mini-btn" onclick="copyIP('20001', this, 'PORT')">PORT</button>
     </div>
 
     <button class="start-btn" onclick="handleStart()">START SERVER</button>
@@ -161,141 +241,121 @@
 <script>
     let audioCtx;
 
+    // --- Audio Engine ---
     function initAudio() {
+        if (audioCtx) return;
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        document.getElementById('audioPrompt').style.display = 'none';
-        playSound(600, 0.2, 'sine', 0.3); // Entry sound
+        document.getElementById('audioPrompt').classList.add('fade-out');
+        
+        // Success entry sound (Arpeggio)
+        playTone(440, 0.1, 'sine', 0.2);
+        setTimeout(() => playTone(554.37, 0.1, 'sine', 0.2), 100);
+        setTimeout(() => playTone(659.25, 0.3, 'sine', 0.2), 200);
+        
+        checkStatus();
     }
 
-    function playSound(freq, duration, type, volume) {
+    function playTone(freq, duration, type, volume) {
         if (!audioCtx) return;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
+        
         osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
         
         osc.start();
         osc.stop(audioCtx.currentTime + duration);
     }
 
-    function copyIP(text, btn) {
-        playSound(900, 0.1, 'sine', 0.5); // LOUDER COPY SOUND
+    // --- Copy Logic ---
+    function copyIP(text, btn, originalText) {
         navigator.clipboard.writeText(text);
-        btn.innerText = "DONE!";
-        setTimeout(() => { btn.innerText = btn.innerText.includes("PORT") ? "PORT" : btn.innerText.includes("IP") ? "IP" : "COPY"; }, 1000);
+        playTone(800, 0.1, 'triangle', 0.3);
+        
+        btn.innerText = "COPIED!";
+        btn.style.background = "#fff";
+        
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.style.background = "";
+        }, 1500);
     }
 
+    // --- Action Logic ---
     function handleStart() {
-        playSound(400, 0.4, 'square', 0.4); // POWERFUL START SOUND
-        setTimeout(() => playSound(800, 0.4, 'square', 0.4), 100);
+        playTone(150, 0.1, 'square', 0.2);
+        setTimeout(() => playTone(300, 0.4, 'square', 0.2), 50);
+        
         setTimeout(() => {
             window.location.href = "https://falixnodes.net/startserver?ip=xcool.falix.me";
-        }, 400);
+        }, 300);
     }
 
+    // --- Status Logic ---
     function isServerActuallyOnline(data) {
-        // Check if API says it's offline
-        if (data.online !== true) {
+        if (!data.online) return false;
+
+        // Extract MOTD text safely
+        const motd = data.motd && data.motd.clean 
+            ? (Array.isArray(data.motd.clean) ? data.motd.clean.join(' ') : data.motd.clean)
+            : "";
+
+        // FalixNodes False-Online Checks
+        const offlineMarkers = [
+            "This server is OFFLINE!",
+            "Start the server at FalixNodes.net",
+            "server is offline",
+            "OFFLINE"
+        ];
+
+        if (offlineMarkers.some(marker => motd.toUpperCase().includes(marker.toUpperCase()))) {
             return false;
         }
 
-        // Check for FalixNodes offline MOTD
-        if (data.motd && data.motd.clean) {
-            const motdText = Array.isArray(data.motd.clean) 
-                ? data.motd.clean.join(' ') 
-                : data.motd.clean;
-            
-            if (motdText.includes('This server is OFFLINE!') || 
-                motdText.includes('Start the server at FalixNodes.net/start')) {
-                return false;
-            }
-        }
-
-        // Check for "⬤ OFFLINE" in version
+        // Check Version for Falix offline patterns
         if (data.version && typeof data.version === 'string') {
-            if (data.version.includes('OFFLINE') || data.version.includes('⬤ OFFLINE')) {
-                return false;
-            }
+            if (data.version.includes('OFFLINE')) return false;
         }
 
-        // Check for 0/0 players (both max and online are 0)
-        if (data.players) {
-            if ((data.players.max === 0 && data.players.online === 0) || 
-                (data.players.max === 0)) {
-                return false;
-            }
-        }
+        // Logic: Falix often reports 0/0 players when suspended/hibernating
+        if (data.players && data.players.max === 0) return false;
 
-        // If all checks pass, server is actually online
         return true;
     }
 
     async function checkStatus(retryCount = 0) {
         const badge = document.getElementById('statusBadge');
-        
-        // Show checking status on first attempt
-        if (retryCount === 0) {
-            badge.innerText = "● CHECKING...";
-            badge.className = "status-badge checking";
-        }
+        const text = document.getElementById('statusText');
         
         try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-            
-            const res = await fetch(`https://api.mcsrvstat.us/2/xcool.falix.me`, {
-                signal: controller.signal,
-                cache: 'no-cache' // Force fresh data
-            });
-            clearTimeout(timeout);
-            
+            const res = await fetch(`https://api.mcsrvstat.us/2/xcool.falix.me`);
             const data = await res.json();
             
-            // Log for debugging (remove in production if needed)
-            console.log('Server status:', data);
-            
-            // Use custom function to check if server is actually online
             if (isServerActuallyOnline(data)) {
-                const online = data.players?.online ?? 0;
-                const max = data.players?.max ?? 0;
-                badge.innerText = `● ONLINE: ${online}/${max}`;
                 badge.className = "status-badge online";
+                text.innerText = `ONLINE: ${data.players.online}/${data.players.max}`;
             } else {
-                // Retry up to 2 times if offline (with 2 second delays)
-                if (retryCount < 2) {
-                    badge.innerText = `● CHECKING... (${retryCount + 1}/2)`;
-                    badge.className = "status-badge checking";
-                    setTimeout(() => checkStatus(retryCount + 1), 2000);
-                } else {
-                    badge.innerText = "● SERVER OFFLINE";
-                    badge.className = "status-badge offline";
-                }
+                badge.className = "status-badge offline";
+                text.innerText = "SERVER OFFLINE";
             }
         } catch (err) {
-            console.error('Status check error:', err);
-            
-            // Retry on error
             if (retryCount < 2) {
-                badge.innerText = `● CHECKING... (${retryCount + 1}/2)`;
-                badge.className = "status-badge checking";
                 setTimeout(() => checkStatus(retryCount + 1), 2000);
             } else {
-                badge.innerText = "● STATUS UNKNOWN";
                 badge.className = "status-badge offline";
+                text.innerText = "STATUS UNKNOWN";
             }
         }
     }
 
-    // Initial check with slight delay
-    setTimeout(() => checkStatus(), 500);
-    
-    // Regular checks every 30 seconds
-    setInterval(() => checkStatus(), 30000);
+    // Refresh every 30 seconds
+    setInterval(checkStatus, 30000);
 </script>
 
 </body>
