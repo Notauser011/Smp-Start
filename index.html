@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🚀 SMP HUB | Premium v2</title>
+    <title>🚀 SMP HUB | Premium v3</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,6 +12,7 @@
             --offline: #ff4b2b;
             --checking: #ffcc00;
             --glass: rgba(255, 255, 255, 0.06);
+            --card-width: 400px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -27,189 +28,111 @@
         }
 
         /* --- Lively Background --- */
-        .bg-canvas {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            filter: blur(90px);
-            opacity: 0.5;
-        }
-
-        .aura {
-            position: absolute;
-            width: 350px;
-            height: 350px;
-            border-radius: 50%;
-            animation: drift 25s infinite alternate ease-in-out;
-        }
-
+        .bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(90px); opacity: 0.5; }
+        .aura { position: absolute; width: 350px; height: 350px; border-radius: 50%; animation: drift 25s infinite alternate ease-in-out; }
         .aura-1 { background: var(--neon); top: -5%; left: -5%; }
         .aura-2 { background: #2c5364; bottom: -5%; right: -5%; animation-delay: -7s; }
-        .aura-3 { background: #00ff88; top: 40%; left: 30%; width: 250px; height: 250px; animation-duration: 18s; }
+        .aura-3 { background: #00ff88; top: 40%; left: 30%; width: 250px; height: 250px; }
+        @keyframes drift { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(120px, 60px) scale(1.1); } }
 
-        @keyframes drift {
-            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-            100% { transform: translate(120px, 60px) scale(1.1) rotate(15deg); }
-        }
-
-        /* --- Refined Card (+5% Size) --- */
+        /* --- Premium Multi-Page Card --- */
         .card {
             width: 100%;
-            max-width: 400px; /* Increased from 380px */
-            padding: 35px 28px;
-            background: rgba(8, 12, 18, 0.75);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-radius: 38px;
+            max-width: var(--card-width);
+            min-height: 580px;
+            background: rgba(8, 12, 18, 0.8);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            text-align: center;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.7), inset 0 0 20px rgba(255,255,255,0.01);
-            animation: entrance 1s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes entrance {
-            from { opacity: 0; transform: translateY(30px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        /* --- Status Badge --- */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
+        /* --- Navigation Bar --- */
+        nav {
+            display: flex;
+            padding: 20px 20px 10px;
             gap: 10px;
-            padding: 10px 22px;
-            border-radius: 100px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255,255,255,0.03);
+            color: rgba(255,255,255,0.5);
             font-size: 11px;
-            font-weight: 900;
-            margin-bottom: 28px;
-            letter-spacing: 2px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
             text-transform: uppercase;
-            border: 1px solid rgba(255,255,255,0.04);
+            letter-spacing: 1px;
         }
 
-        .dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: currentColor;
-            position: relative;
+        .nav-btn.active {
+            background: rgba(0, 255, 204, 0.1);
+            color: var(--neon);
+            box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.1);
         }
 
-        .dot::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 50%;
-            background: currentColor;
-            animation: ping 2s infinite;
+        /* --- Content Areas --- */
+        .page {
+            display: none;
+            padding: 25px;
+            flex: 1;
+            overflow-y: auto;
+            animation: fadeIn 0.4s ease;
         }
 
-        @keyframes ping {
-            0% { transform: scale(1); opacity: 0.6; }
-            100% { transform: scale(3.5); opacity: 0; }
-        }
+        .page.active { display: block; }
 
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Hub Page Components --- */
+        .status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 100px; font-size: 10px; font-weight: 900; margin-bottom: 20px; letter-spacing: 1.5px; border: 1px solid rgba(255,255,255,0.04); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; position: relative; }
+        .dot::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: currentColor; animation: ping 2s infinite; }
+        @keyframes ping { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(3.5); opacity: 0; } }
         .online { color: var(--online); background: rgba(0, 255, 136, 0.08); }
         .offline { color: var(--offline); background: rgba(255, 75, 43, 0.08); }
         .checking { color: var(--checking); background: rgba(255, 204, 0, 0.08); }
 
-        h1 { font-size: 32px; font-weight: 950; margin-bottom: 25px; letter-spacing: -1.2px; }
+        h1 { font-size: 32px; font-weight: 950; margin-bottom: 20px; text-align: center; }
 
-        /* --- Spacing & Sections --- */
-        .section-label {
-            font-size: 10px;
-            color: var(--neon);
-            text-align: left;
-            margin: 14px 0 8px 12px;
-            text-transform: uppercase;
-            letter-spacing: 2.2px;
-            font-weight: 800;
-            opacity: 0.7;
-        }
+        .section-label { font-size: 9px; color: var(--neon); margin: 15px 0 8px 5px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; opacity: 0.7; }
+        .copy-row { background: var(--glass); padding: 10px 10px 10px 18px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.03); }
+        .val { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: #eee; }
+        .btn-copy { background: var(--neon); border: none; padding: 10px 14px; border-radius: 10px; font-size: 9px; font-weight: 900; cursor: pointer; }
 
-        .bedrock-section { margin-top: 24px; } /* Added spacing between editions */
+        /* --- FAQ Page Styling --- */
+        .faq-item { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .faq-q { color: var(--neon); font-weight: 900; font-size: 14px; margin-bottom: 10px; line-height: 1.4; }
+        .faq-a { color: rgba(255,255,255,0.7); font-size: 13px; line-height: 1.6; }
 
-        .copy-row {
-            background: var(--glass);
-            padding: 10px 10px 10px 20px;
-            border-radius: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255,255,255,0.03);
-            transition: background 0.2s, transform 0.2s;
-        }
+        /* --- Report Page Styling --- */
+        .report-card { text-align: center; padding: 20px; }
+        .report-count-box { background: rgba(0,0,0,0.3); padding: 30px; border-radius: 30px; margin-bottom: 25px; border: 1px solid var(--offline); box-shadow: 0 0 20px rgba(255, 75, 43, 0.1); }
+        .report-num { font-size: 48px; font-weight: 900; color: var(--offline); display: block; }
+        .report-label { font-size: 12px; letter-spacing: 2px; opacity: 0.6; }
 
-        .copy-row:hover { background: rgba(255,255,255,0.1); transform: translateX(4px); }
+        .btn-report { width: 100%; padding: 20px; border-radius: 20px; border: 1px solid var(--offline); background: rgba(255, 75, 43, 0.1); color: var(--offline); font-weight: 900; cursor: pointer; transition: 0.3s; }
+        .btn-report:not(:disabled):hover { background: var(--offline); color: white; transform: scale(1.02); }
+        .btn-report:disabled { opacity: 0.5; cursor: not-allowed; border-color: gray; color: gray; }
 
-        .val { font-size: 14px; font-family: 'JetBrains Mono', monospace; color: #fff; }
+        #cooldownText { font-size: 11px; margin-top: 15px; color: #ffcc00; display: none; }
 
-        .btn-copy {
-            background: var(--neon);
-            border: none;
-            padding: 11px 16px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 900;
-            cursor: pointer;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        /* --- Global Footer Start Button --- */
+        .footer-action { padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .btn-start { width: 100%; padding: 20px; border: none; border-radius: 20px; background: linear-gradient(90deg, #00ffcc, #00ff88); color: #000; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 255, 204, 0.15); transition: 0.3s; }
+        .btn-start:hover { transform: translateY(-3px); }
 
-        .btn-copy:active { transform: scale(0.9); }
-
-        /* --- Player List --- */
-        #playerWrap {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.6s ease;
-        }
-
-        #playerWrap.active { max-height: 180px; margin-top: 20px; }
-
-        #playerList {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px;
-            background: rgba(0,0,0,0.25);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.02);
-        }
-
-        .player {
-            font-size: 11px;
-            background: rgba(255,255,255,0.08);
-            padding: 5px 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        /* --- Action Button (Toned Down Glow) --- */
-        .btn-start {
-            width: 100%;
-            padding: 22px;
-            margin-top: 30px;
-            border: none;
-            border-radius: 22px;
-            background: linear-gradient(90deg, #00ffcc, #00ff88, #00ffcc);
-            background-size: 200% auto;
-            color: #000;
-            font-weight: 900;
-            font-size: 18px;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0, 255, 204, 0.12); /* Reduced opacity and spread */
-            animation: shine 4s linear infinite;
-            transition: 0.4s ease;
-        }
-
-        .btn-start:hover { 
-            transform: translateY(-4px); 
-            box-shadow: 0 12px 30px rgba(0, 255, 204, 0.2); 
-        }
-
-        @keyframes shine { to { background-position: 200% center; } }
+        @keyframes entrance { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body onclick="initAudio()">
@@ -221,46 +144,72 @@
     </div>
 
     <div class="card">
-        <div id="badge" class="status-badge checking">
-            <span class="dot"></span>
-            <span id="badgeText">SYNCING...</span>
+        <nav>
+            <button class="nav-btn active" onclick="showPage('hub')">Hub</button>
+            <button class="nav-btn" onclick="showPage('faq')">FAQ</button>
+            <button class="nav-btn" onclick="showPage('report')">Reports</button>
+        </nav>
+
+        <div id="hubPage" class="page active">
+            <div style="text-align: center;">
+                <div id="badge" class="status-badge checking">
+                    <span class="dot"></span>
+                    <span id="badgeText">SYNCING...</span>
+                </div>
+            </div>
+            <h1>🚀 SMP HUB</h1>
+            <div class="section-label">Java Edition</div>
+            <div class="copy-row">
+                <span class="val">xcool.falix.me</span>
+                <button class="btn-copy" onclick="copy('xcool.falix.me', this, 'COPY')">COPY</button>
+            </div>
+            <div class="section-label" style="margin-top:20px">Bedrock Edition</div>
+            <div class="copy-row">
+                <span class="val">168.119.78.155</span>
+                <button class="btn-copy" onclick="copy('168.119.78.155', this, 'IP')">IP</button>
+            </div>
+            <div class="copy-row">
+                <span class="val">Port: 20001</span>
+                <button class="btn-copy" onclick="copy('20001', this, 'PORT')">PORT</button>
+            </div>
         </div>
 
-        <h1>🚀 SMP HUB</h1>
-
-        <div class="section-label">Java Edition</div>
-        <div class="copy-row">
-            <span class="val">xcool.falix.me</span>
-            <button class="btn-copy" onclick="copy('xcool.falix.me', this, 'COPY')">COPY</button>
+        <div id="faqPage" class="page">
+            <h2 style="margin-bottom:20px; text-align:center">Help Center</h2>
+            <div class="faq-item">
+                <div class="faq-q">1. Connection Error: "Problem establishing a connection..."</div>
+                <div class="faq-a">This likely means the server is offline or you entered the wrong details. If you're sure your details are correct, please report it in the Reports tab.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">2. Error: "Outdated Version!"</div>
+                <div class="faq-a">The server requires Minecraft Bedrock 1.21.130. You can download this version from mcpedl.org.</div>
+            </div>
         </div>
 
-        <div class="section-label bedrock-section">Bedrock Edition</div>
-        <div class="copy-row">
-            <span class="val">168.119.78.155</span>
-            <button class="btn-copy" onclick="copy('168.119.78.155', this, 'IP')">IP</button>
-        </div>
-        <div class="copy-row">
-            <span class="val">Port: 20001</span>
-            <button class="btn-copy" onclick="copy('20001', this, 'PORT')">PORT</button>
-        </div>
-
-        <div id="playerWrap">
-            <div style="font-size: 10px; opacity: 0.4; margin-bottom: 10px; letter-spacing: 1px;">ACTIVE PLAYERS</div>
-            <div id="playerList"></div>
+        <div id="reportPage" class="page">
+            <h2 style="margin-bottom:20px; text-align:center">Issue Tracker</h2>
+            <div class="report-card">
+                <div class="report-count-box">
+                    <span class="report-num" id="reportCounter">24</span>
+                    <span class="report-label">TOTAL REPORTS</span>
+                </div>
+                <p style="font-size:13px; margin-bottom:20px; opacity:0.7">Can't join? If the status says Online but you can't connect, let us know.</p>
+                <button id="reportBtn" class="btn-report" onclick="submitReport()">REPORT JOIN ISSUE</button>
+                <div id="cooldownText">Cooldown active. Please wait <span id="timer">5:00</span></div>
+            </div>
         </div>
 
-        <button class="btn-start" onclick="handleStart()">START SERVER</button>
+        <div class="footer-action">
+            <button class="btn-start" onclick="handleStart()">START SERVER</button>
+        </div>
     </div>
 
 <script>
     let audioCtx;
+    let reportCount = parseInt(localStorage.getItem('globalReports')) || 24;
 
     function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            // Subtly wake up audio
-            playSfx(440, 0.1, 'sine', 0.05);
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
 
     function playSfx(f, d, t, v) {
@@ -274,58 +223,88 @@
         o.start(); o.stop(audioCtx.currentTime + d);
     }
 
+    // --- Navigation Logic ---
+    function showPage(pageId) {
+        playSfx(400, 0.1, 'sine', 0.1);
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(pageId + 'Page').classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // --- Report System ---
+    document.getElementById('reportCounter').innerText = reportCount;
+
+    function submitReport() {
+        const lastReport = localStorage.getItem('lastReportTimestamp');
+        const now = Date.now();
+
+        if (lastReport && now - lastReport < 300000) return;
+
+        playSfx(200, 0.3, 'sine', 0.2);
+        reportCount++;
+        localStorage.setItem('globalReports', reportCount);
+        localStorage.setItem('lastReportTimestamp', now);
+        document.getElementById('reportCounter').innerText = reportCount;
+        
+        checkReportCooldown();
+    }
+
+    function checkReportCooldown() {
+        const btn = document.getElementById('reportBtn');
+        const coolText = document.getElementById('cooldownText');
+        const lastReport = localStorage.getItem('lastReportTimestamp');
+        const now = Date.now();
+
+        if (lastReport && now - lastReport < 300000) {
+            btn.disabled = true;
+            coolText.style.display = 'block';
+            
+            const remaining = 300000 - (now - lastReport);
+            const mins = Math.floor(remaining / 60000);
+            const secs = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            
+            setTimeout(checkReportCooldown, 1000);
+        } else {
+            btn.disabled = false;
+            coolText.style.display = 'none';
+        }
+    }
+
+    // --- Original Status & Copy Logic ---
     function copy(t, b, o) {
-        initAudio();
         navigator.clipboard.writeText(t);
-        playSfx(750, 0.15, 'sine', 0.15);
-        b.innerText = "COPIED!";
-        b.style.background = "#fff";
-        setTimeout(() => { b.innerText = o; b.style.background = ""; }, 1500);
+        playSfx(800, 0.1, 'sine', 0.2);
+        b.innerText = "DONE!";
+        setTimeout(() => b.innerText = o, 1500);
     }
 
     function handleStart() {
-        initAudio();
-        playSfx(250, 0.1, 'square', 0.1);
-        setTimeout(() => playSfx(450, 0.4, 'square', 0.1), 100);
-        setTimeout(() => window.location.href = "https://falixnodes.net/startserver?ip=xcool.falix.me", 400);
+        playSfx(300, 0.4, 'square', 0.1);
+        setTimeout(() => window.location.href = "https://falixnodes.net/startserver?ip=xcool.falix.me", 300);
     }
 
     async function checkStatus() {
         const b = document.getElementById('badge');
         const bt = document.getElementById('badgeText');
-        const pw = document.getElementById('playerWrap');
-        const pl = document.getElementById('playerList');
-
         try {
             const r = await fetch('https://api.mcsrvstat.us/2/xcool.falix.me');
             const d = await r.json();
-            
-            // FalixNodes Logic: Verify MOTD isn't an "Offline" message
-            const motdText = d.motd?.clean ? d.motd.clean.toString() : "";
-            const isOfflineMessage = motdText.toUpperCase().includes("OFFLINE") || motdText.includes("Start the server");
-
-            if (d.online && !isOfflineMessage && d.players?.max > 0) {
+            const motd = d.motd?.clean ? d.motd.clean.toString() : "";
+            const isFake = motd.includes("OFFLINE") || motd.includes("Start the server");
+            if (d.online && !isFake && d.players?.max > 0) {
                 b.className = "status-badge online";
                 bt.innerText = `ONLINE: ${d.players.online}/${d.players.max}`;
-                
-                if (d.players.list && d.players.list.length > 0) {
-                    pl.innerHTML = d.players.list.map(p => `<span class="player">${p}</span>`).join('');
-                    pw.classList.add('active');
-                } else {
-                    pw.classList.remove('active');
-                }
             } else {
                 b.className = "status-badge offline";
                 bt.innerText = "OFFLINE";
-                pw.classList.remove('active');
             }
-        } catch (e) {
-            bt.innerText = "SYNC ERROR";
-            b.className = "status-badge checking";
-        }
+        } catch (e) { b.className = "status-badge checking"; bt.innerText = "SYNC ERROR"; }
     }
 
     checkStatus();
+    checkReportCooldown();
     setInterval(checkStatus, 30000);
 </script>
 </body>
