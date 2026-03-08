@@ -106,9 +106,10 @@
         h1 { font-size: 32px; font-weight: 950; margin-bottom: 20px; text-align: center; }
 
         .section-label { font-size: 9px; color: var(--neon); margin: 15px 0 8px 5px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; opacity: 0.7; }
-        .copy-row { background: var(--glass); padding: 10px 10px 10px 18px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.03); }
+        .copy-row { background: var(--glass); padding: 10px 10px 10px 18px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.03); transition: 0.2s; }
+        .copy-row:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); }
         .val { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: #eee; }
-        .btn-copy { background: var(--neon); border: none; padding: 10px 14px; border-radius: 10px; font-size: 9px; font-weight: 900; cursor: pointer; }
+        .btn-copy { background: var(--neon); border: none; padding: 10px 14px; border-radius: 10px; font-size: 9px; font-weight: 900; cursor: pointer; transition: 0.2s; }
 
         /* --- FAQ Page Styling --- */
         .faq-item { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
@@ -116,7 +117,7 @@
         .faq-a { color: rgba(255,255,255,0.7); font-size: 13px; line-height: 1.6; }
 
         /* --- Report Page Styling --- */
-        .report-card { text-align: center; padding: 20px; }
+        .report-card { text-align: center; padding: 10px; }
         .report-count-box { background: rgba(0,0,0,0.3); padding: 30px; border-radius: 30px; margin-bottom: 25px; border: 1px solid var(--offline); box-shadow: 0 0 20px rgba(255, 75, 43, 0.1); }
         .report-num { font-size: 48px; font-weight: 900; color: var(--offline); display: block; }
         .report-label { font-size: 12px; letter-spacing: 2px; opacity: 0.6; }
@@ -125,14 +126,14 @@
         .btn-report:not(:disabled):hover { background: var(--offline); color: white; transform: scale(1.02); }
         .btn-report:disabled { opacity: 0.5; cursor: not-allowed; border-color: gray; color: gray; }
 
-        #cooldownText { font-size: 11px; margin-top: 15px; color: #ffcc00; display: none; }
+        #cooldownText { font-size: 11px; margin-top: 15px; color: #ffcc00; display: none; font-weight: 700; }
 
         /* --- Global Footer Start Button --- */
         .footer-action { padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); }
         .btn-start { width: 100%; padding: 20px; border: none; border-radius: 20px; background: linear-gradient(90deg, #00ffcc, #00ff88); color: #000; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 255, 204, 0.15); transition: 0.3s; }
-        .btn-start:hover { transform: translateY(-3px); }
+        .btn-start:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0, 255, 204, 0.25); }
 
-        @keyframes entrance { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes entrance { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     </style>
 </head>
 <body onclick="initAudio()">
@@ -190,12 +191,12 @@
             <h2 style="margin-bottom:20px; text-align:center">Issue Tracker</h2>
             <div class="report-card">
                 <div class="report-count-box">
-                    <span class="report-num" id="reportCounter">24</span>
+                    <span class="report-num" id="reportCounter">0</span>
                     <span class="report-label">TOTAL REPORTS</span>
                 </div>
                 <p style="font-size:13px; margin-bottom:20px; opacity:0.7">Can't join? If the status says Online but you can't connect, let us know.</p>
                 <button id="reportBtn" class="btn-report" onclick="submitReport()">REPORT JOIN ISSUE</button>
-                <div id="cooldownText">Cooldown active. Please wait <span id="timer">5:00</span></div>
+                <div id="cooldownText">Please wait <span id="timer">5:00</span></div>
             </div>
         </div>
 
@@ -204,9 +205,28 @@
         </div>
     </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
 <script>
+    // 1. Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBB7unMyS4xTA6gjJvp5gnUpXa1xctbjqM",
+        authDomain: "smp-start-database.firebaseapp.com",
+        databaseURL: "https://smp-start-database-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "smp-start-database",
+        storageBucket: "smp-start-database.firebasestorage.app",
+        messagingSenderId: "22979865687",
+        appId: "1:22979865687:web:a272eb1cc61cfad4a90712",
+        measurementId: "G-K8GYYQHZME"
+    };
+
+    // 2. Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const reportsRef = db.ref('totalReports');
+
     let audioCtx;
-    let reportCount = parseInt(localStorage.getItem('globalReports')) || 24;
 
     function initAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -223,30 +243,37 @@
         o.start(); o.stop(audioCtx.currentTime + d);
     }
 
-    // --- Navigation Logic ---
+    // --- Live Sync Listener ---
+    reportsRef.on('value', (snapshot) => {
+        const val = snapshot.val() || 0;
+        document.getElementById('reportCounter').innerText = val;
+    });
+
+    // --- Navigation ---
     function showPage(pageId) {
+        initAudio();
         playSfx(400, 0.1, 'sine', 0.1);
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(pageId + 'Page').classList.add('active');
-        event.target.classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
-    // --- Report System ---
-    document.getElementById('reportCounter').innerText = reportCount;
-
+    // --- Global Report System ---
     function submitReport() {
         const lastReport = localStorage.getItem('lastReportTimestamp');
         const now = Date.now();
 
         if (lastReport && now - lastReport < 300000) return;
 
+        initAudio();
         playSfx(200, 0.3, 'sine', 0.2);
-        reportCount++;
-        localStorage.setItem('globalReports', reportCount);
+
+        reportsRef.transaction((currentValue) => {
+            return (currentValue || 0) + 1;
+        });
+
         localStorage.setItem('lastReportTimestamp', now);
-        document.getElementById('reportCounter').innerText = reportCount;
-        
         checkReportCooldown();
     }
 
@@ -259,12 +286,10 @@
         if (lastReport && now - lastReport < 300000) {
             btn.disabled = true;
             coolText.style.display = 'block';
-            
             const remaining = 300000 - (now - lastReport);
             const mins = Math.floor(remaining / 60000);
             const secs = Math.floor((remaining % 60000) / 1000);
             document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-            
             setTimeout(checkReportCooldown, 1000);
         } else {
             btn.disabled = false;
@@ -272,15 +297,18 @@
         }
     }
 
-    // --- Original Status & Copy Logic ---
+    // --- Status & Copy Logic ---
     function copy(t, b, o) {
+        initAudio();
         navigator.clipboard.writeText(t);
         playSfx(800, 0.1, 'sine', 0.2);
-        b.innerText = "DONE!";
-        setTimeout(() => b.innerText = o, 1500);
+        b.innerText = "COPIED!";
+        b.style.background = "#fff";
+        setTimeout(() => { b.innerText = o; b.style.background = ""; }, 1500);
     }
 
     function handleStart() {
+        initAudio();
         playSfx(300, 0.4, 'square', 0.1);
         setTimeout(() => window.location.href = "https://falixnodes.net/startserver?ip=xcool.falix.me", 300);
     }
@@ -293,14 +321,16 @@
             const d = await r.json();
             const motd = d.motd?.clean ? d.motd.clean.toString() : "";
             const isFake = motd.includes("OFFLINE") || motd.includes("Start the server");
-            if (d.online && !isFake && d.players?.max > 0) {
+            if (d.online && !isFake) {
                 b.className = "status-badge online";
                 bt.innerText = `ONLINE: ${d.players.online}/${d.players.max}`;
             } else {
                 b.className = "status-badge offline";
                 bt.innerText = "OFFLINE";
             }
-        } catch (e) { b.className = "status-badge checking"; bt.innerText = "SYNC ERROR"; }
+        } catch (e) { 
+            b.className = "status-badge checking"; bt.innerText = "SYNC ERROR"; 
+        }
     }
 
     checkStatus();
